@@ -1,0 +1,38 @@
+# Secrets and environment files
+.env
+.env.*
+!.env.example
+secrets/
+
+# SSH and certificates
+*.key
+*.pem
+id_rsa*
+id_ed25519*
+
+# Databases and backups
+*.sql
+*.sql.gz
+*.dump
+*.tar
+*.tar.gz
+backups/
+
+# Nextcloud private data
+nextcloud/data/
+config.php
+
+# Node.js
+node_modules/
+npm-debug.log*
+
+# Logs and temporary files
+*.log
+tmp/
+.cache/
+
+# Operating system and editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

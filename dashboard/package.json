@@ -1,0 +1,12 @@
+{
+  "name": "juancloud-test-api",
+  "version": "1.0.0",
+  "description": "Test API deployed on JuanCloud",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

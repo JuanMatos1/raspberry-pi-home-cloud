@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JuanCloud Dashboard</title>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, system-ui, sans-serif;
+      background: #07111f;
+      color: #e8f0ff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top right, #173b68, transparent 40%),
+        #07111f;
+    }
+
+    main {
+      width: min(1100px, 92%);
+      margin: auto;
+      padding: 48px 0;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+    }
+
+    .subtitle {
+      color: #91a7c5;
+      margin-top: 8px;
+    }
+
+    .status {
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: #123926;
+      color: #72f1a5;
+      border: 1px solid #257849;
+      font-weight: 700;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      min-height: 155px;
+      padding: 22px;
+      border: 1px solid #233c5b;
+      border-radius: 18px;
+      background: rgba(14, 31, 52, 0.85);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    }
+
+    .label {
+      color: #91a7c5;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .value {
+      margin-top: 18px;
+      font-size: 2rem;
+      font-weight: 800;
+    }
+
+    .detail {
+      margin-top: 8px;
+      color: #b8c7dc;
+    }
+
+    footer {
+      margin-top: 28px;
+      color: #7188a7;
+      text-align: center;
+    }
+
+    .error {
+      background: #481d25;
+      color: #ff9ca9;
+      border-color: #8b3443;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>JuanCloud</h1>
+        <div class="subtitle">Raspberry Pi Home Server Dashboard</div>
+      </div>
+
+      <div id="serverStatus" class="status">Connecting...</div>
+    </header>
+
+    <section class="grid">
+      <article class="card">
+        <div class="label">CPU Usage</div>
+        <div id="cpuUsage" class="value">--</div>
+        <div id="cpuDetails" class="detail">Loading...</div>
+      </article>
+
+      <article class="card">
+        <div class="label">Memory</div>
+        <div id="memoryUsage" class="value">--</div>
+        <div id="memoryDetails" class="detail">Loading...</div>
+      </article>
+
+      <article class="card">
+        <div class="label">Temperature</div>
+        <div id="temperature" class="value">--</div>
+        <div class="detail">Raspberry Pi processor</div>
+      </article>
+
+      <article class="card">
+        <div class="label">Uptime</div>
+        <div id="uptime" class="value">--</div>
+        <div class="detail">Time without interruption</div>
+      </article>
+
+      <article class="card">
+        <div class="label">System Load</div>
+        <div id="loadAverage" class="value">--</div>
+        <div class="detail">One-minute load average</div>
+      </article>
+
+      <article class="card">
+        <div class="label">System</div>
+        <div id="architecture" class="value">--</div>
+        <div id="platform" class="detail">Loading...</div>
+      </article>
+      <article class="card">
+        <div class="label">NVMe Storage</div>
+        <div id="nvmeUsage" class="value">--</div>
+        <div id="nvmeDetails" class="detail">Loading...</div>
+      </article>
+
+      <article class="card">
+        <div class="label">Backup Storage</div>
+        <div id="backupUsage" class="value">--</div>
+        <div id="backupDetails" class="detail">Loading...</div>
+      </article>
+    </section>
+
+    <footer>
+      Last updated: <span id="lastUpdated">--</span>
+    </footer>
+  </main>
+
+  <script>
+    function formatUptime(totalSeconds) {
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+      return `${days}d ${hours}h ${minutes}m`;
+    }
+
+    async function updateDashboard() {
+      const statusElement = document.getElementById("serverStatus");
+
+      try {
+        const response = await fetch("/api/status");
+
+        if (!response.ok) {
+          throw new Error("Status request failed");
+        }
+
+        const data = await response.json();
+
+        statusElement.textContent = "Online";
+        statusElement.classList.remove("error");
+
+        document.getElementById("cpuUsage").textContent =
+          `${data.cpuUsagePercent}%`;
+
+        document.getElementById("cpuDetails").textContent =
+          `${data.cpuCores} ARM64 cores`;
+
+        document.getElementById("memoryUsage").textContent =
+          `${data.memory.usagePercent}%`;
+
+        document.getElementById("memoryDetails").textContent =
+          `${data.memory.usedGB} GB of ${data.memory.totalGB} GB`;
+
+        document.getElementById("temperature").textContent =
+          data.temperatureCelsius === null
+            ? "Unavailable"
+            : `${data.temperatureCelsius} °C`;
+
+        document.getElementById("uptime").textContent =
+          formatUptime(data.uptimeSeconds);
+
+        document.getElementById("loadAverage").textContent =
+          data.loadAverage;
+
+        document.getElementById("architecture").textContent =
+          data.architecture;
+
+        document.getElementById("platform").textContent =
+          `${data.platform} · ${data.server}`;
+
+        document.getElementById("nvmeUsage").textContent =
+          `${data.storage.nvme.usagePercent}%`;
+
+        document.getElementById("nvmeDetails").textContent =
+          `${data.storage.nvme.usedGB} GB used · ${data.storage.nvme.freeGB} GB free`;
+
+        document.getElementById("backupUsage").textContent =
+          `${data.storage.backup.usagePercent}%`;
+
+        document.getElementById("backupDetails").textContent =
+          `${data.storage.backup.usedGB} GB used · ${data.storage.backup.freeGB} GB free`;
+
+        document.getElementById("lastUpdated").textContent =
+          new Date(data.timestamp).toLocaleString();
+      } catch {
+        statusElement.textContent = "Offline";
+        statusElement.classList.add("error");
+      }
+    }
+
+    updateDashboard();
+    setInterval(updateDashboard, 5000);
+  </script>
+</body>
+</html>
