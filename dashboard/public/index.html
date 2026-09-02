@@ -1,11 +1,30 @@
 <!DOCTYPE html>
-<html lang="es">
+
+<!--
+  JuanCloud Dashboard frontend
+
+  This file contains:
+  1. The HTML structure of the dashboard
+  2. The CSS visual design
+  3. The JavaScript that requests metrics from the backend
+-->
+<html lang="en">
 <head>
+  <!-- Use UTF-8 so the page can display standard and special characters. -->
   <meta charset="UTF-8">
+
+  <!-- Make the layout responsive on phones, tablets, and computers. -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Text displayed in the browser tab. -->
   <title>JuanCloud Dashboard</title>
 
   <style>
+    /*
+     * Global design variables and default page appearance.
+     *
+     * color-scheme tells the browser that this website uses a dark theme.
+     */
     :root {
       color-scheme: dark;
       font-family: Inter, system-ui, sans-serif;
@@ -13,10 +32,20 @@
       color: #e8f0ff;
     }
 
+    /*
+     * Include padding and borders when calculating the size
+     * of every element.
+     */
     * {
       box-sizing: border-box;
     }
 
+    /*
+     * Configure the page background.
+     *
+     * min-height ensures the background fills the entire screen,
+     * even when the page contains little content.
+     */
     body {
       margin: 0;
       min-height: 100vh;
@@ -25,12 +54,21 @@
         #07111f;
     }
 
+    /*
+     * Main dashboard container.
+     *
+     * It can grow to 1,100 pixels wide but uses 92% of the screen
+     * on smaller displays.
+     */
     main {
       width: min(1100px, 92%);
       margin: auto;
       padding: 48px 0;
     }
 
+    /*
+     * Place the title and server-status indicator on the same row.
+     */
     header {
       display: flex;
       justify-content: space-between;
@@ -39,16 +77,26 @@
       margin-bottom: 32px;
     }
 
+    /*
+     * Responsive dashboard title.
+     *
+     * clamp() keeps the font between 2rem and 3.5rem while allowing
+     * it to adjust according to the screen width.
+     */
     h1 {
       margin: 0;
       font-size: clamp(2rem, 5vw, 3.5rem);
     }
 
+    /* Secondary text displayed below the main title. */
     .subtitle {
       color: #91a7c5;
       margin-top: 8px;
     }
 
+    /*
+     * Green status badge displayed when the server is online.
+     */
     .status {
       padding: 10px 16px;
       border-radius: 999px;
@@ -58,12 +106,21 @@
       font-weight: 700;
     }
 
+    /*
+     * Responsive grid containing the metric cards.
+     *
+     * auto-fit creates as many columns as the available space permits.
+     * Each card must be at least 220 pixels wide.
+     */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 18px;
     }
 
+    /*
+     * Visual design shared by all metric cards.
+     */
     .card {
       min-height: 155px;
       padding: 22px;
@@ -73,6 +130,9 @@
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
     }
 
+    /*
+     * Small uppercase name at the top of each metric card.
+     */
     .label {
       color: #91a7c5;
       font-size: 0.9rem;
@@ -80,29 +140,46 @@
       letter-spacing: 0.08em;
     }
 
+    /*
+     * Large primary metric value, such as CPU usage or temperature.
+     */
     .value {
       margin-top: 18px;
       font-size: 2rem;
       font-weight: 800;
     }
 
+    /*
+     * Supporting information displayed underneath a metric.
+     */
     .detail {
       margin-top: 8px;
       color: #b8c7dc;
     }
 
+    /* Timestamp displayed underneath the dashboard cards. */
     footer {
       margin-top: 28px;
       color: #7188a7;
       text-align: center;
     }
 
+    /*
+     * Red status-badge design used when the dashboard cannot
+     * communicate with the API.
+     */
     .error {
       background: #481d25;
       color: #ff9ca9;
       border-color: #8b3443;
     }
 
+    /*
+     * Mobile layout adjustment.
+     *
+     * On screens 600 pixels wide or smaller, stack the title
+     * and server-status indicator vertically.
+     */
     @media (max-width: 600px) {
       header {
         align-items: flex-start;
@@ -113,58 +190,74 @@
 </head>
 
 <body>
+  <!-- Main visible dashboard content. -->
   <main>
+    <!-- Dashboard title and live server-status indicator. -->
     <header>
       <div>
         <h1>JuanCloud</h1>
         <div class="subtitle">Raspberry Pi Home Server Dashboard</div>
       </div>
 
+      <!--
+        JavaScript changes this text to "Online" or "Offline"
+        after communicating with the backend.
+      -->
       <div id="serverStatus" class="status">Connecting...</div>
     </header>
 
+    <!-- Responsive grid containing all server metric cards. -->
     <section class="grid">
+      <!-- Current processor usage and CPU core count. -->
       <article class="card">
         <div class="label">CPU Usage</div>
         <div id="cpuUsage" class="value">--</div>
         <div id="cpuDetails" class="detail">Loading...</div>
       </article>
 
+      <!-- Current RAM usage and total available memory. -->
       <article class="card">
         <div class="label">Memory</div>
         <div id="memoryUsage" class="value">--</div>
         <div id="memoryDetails" class="detail">Loading...</div>
       </article>
 
+      <!-- Raspberry Pi processor temperature. -->
       <article class="card">
         <div class="label">Temperature</div>
         <div id="temperature" class="value">--</div>
         <div class="detail">Raspberry Pi processor</div>
       </article>
 
+      <!-- Time elapsed since the Raspberry Pi last started. -->
       <article class="card">
         <div class="label">Uptime</div>
         <div id="uptime" class="value">--</div>
         <div class="detail">Time without interruption</div>
       </article>
 
+      <!-- Average system workload during the previous minute. -->
       <article class="card">
         <div class="label">System Load</div>
         <div id="loadAverage" class="value">--</div>
         <div class="detail">One-minute load average</div>
       </article>
 
+      <!-- Operating-system platform and processor architecture. -->
       <article class="card">
         <div class="label">System</div>
         <div id="architecture" class="value">--</div>
         <div id="platform" class="detail">Loading...</div>
       </article>
+
+      <!-- Main NVMe SSD usage information. -->
       <article class="card">
         <div class="label">NVMe Storage</div>
         <div id="nvmeUsage" class="value">--</div>
         <div id="nvmeDetails" class="detail">Loading...</div>
       </article>
 
+      <!-- External backup-drive usage information. -->
       <article class="card">
         <div class="label">Backup Storage</div>
         <div id="backupUsage" class="value">--</div>
@@ -172,85 +265,142 @@
       </article>
     </section>
 
+    <!-- Time when the displayed metrics were last collected. -->
     <footer>
       Last updated: <span id="lastUpdated">--</span>
     </footer>
   </main>
 
   <script>
+    /*
+     * Convert uptime from a raw number of seconds into a format
+     * that is easier for visitors to read.
+     *
+     * Example:
+     * 183720 seconds becomes "2d 3h 2m".
+     */
     function formatUptime(totalSeconds) {
+      // Calculate the number of complete days.
       const days = Math.floor(totalSeconds / 86400);
+
+      // Calculate the remaining complete hours.
       const hours = Math.floor((totalSeconds % 86400) / 3600);
+
+      // Calculate the remaining complete minutes.
       const minutes = Math.floor((totalSeconds % 3600) / 60);
 
       return `${days}d ${hours}h ${minutes}m`;
     }
 
+    /*
+     * Request the newest server metrics from the Express backend
+     * and display them in their corresponding dashboard cards.
+     */
     async function updateDashboard() {
+      // Get the server-status badge so its appearance can be updated.
       const statusElement = document.getElementById("serverStatus");
 
       try {
+        /*
+         * Request system information from the /api/status endpoint
+         * created in server.js.
+         */
         const response = await fetch("/api/status");
 
+        /*
+         * fetch() does not automatically throw an error for responses
+         * such as HTTP 404 or 500, so check the status manually.
+         */
         if (!response.ok) {
           throw new Error("Status request failed");
         }
 
+        // Convert the API's JSON response into a JavaScript object.
         const data = await response.json();
 
+        // Mark the server as online and remove any previous error style.
         statusElement.textContent = "Online";
         statusElement.classList.remove("error");
 
+        // Display the current CPU usage percentage.
         document.getElementById("cpuUsage").textContent =
           `${data.cpuUsagePercent}%`;
 
+        // Display the number of processor cores.
         document.getElementById("cpuDetails").textContent =
           `${data.cpuCores} ARM64 cores`;
 
+        // Display the percentage of RAM currently in use.
         document.getElementById("memoryUsage").textContent =
           `${data.memory.usagePercent}%`;
 
+        // Display used RAM and total installed RAM.
         document.getElementById("memoryDetails").textContent =
           `${data.memory.usedGB} GB of ${data.memory.totalGB} GB`;
 
+        /*
+         * Display the processor temperature.
+         *
+         * If the backend could not read the temperature sensor,
+         * display "Unavailable" instead of an invalid value.
+         */
         document.getElementById("temperature").textContent =
           data.temperatureCelsius === null
             ? "Unavailable"
             : `${data.temperatureCelsius} °C`;
 
+        // Convert the server uptime into days, hours, and minutes.
         document.getElementById("uptime").textContent =
           formatUptime(data.uptimeSeconds);
 
+        // Display the average system workload from the previous minute.
         document.getElementById("loadAverage").textContent =
           data.loadAverage;
 
+        // Display the processor architecture, such as arm64.
         document.getElementById("architecture").textContent =
           data.architecture;
 
+        // Display the operating-system platform and server name.
         document.getElementById("platform").textContent =
           `${data.platform} · ${data.server}`;
 
+        // Display the main NVMe SSD usage percentage.
         document.getElementById("nvmeUsage").textContent =
           `${data.storage.nvme.usagePercent}%`;
 
+        // Display used and free space on the main NVMe SSD.
         document.getElementById("nvmeDetails").textContent =
           `${data.storage.nvme.usedGB} GB used · ${data.storage.nvme.freeGB} GB free`;
 
+        // Display the backup drive's usage percentage.
         document.getElementById("backupUsage").textContent =
           `${data.storage.backup.usagePercent}%`;
 
+        // Display used and free space on the backup drive.
         document.getElementById("backupDetails").textContent =
           `${data.storage.backup.usedGB} GB used · ${data.storage.backup.freeGB} GB free`;
 
+        /*
+         * Convert the API's UTC timestamp into the visitor's
+         * local date and time.
+         */
         document.getElementById("lastUpdated").textContent =
           new Date(data.timestamp).toLocaleString();
       } catch {
+        /*
+         * If the API cannot be reached or returns an error,
+         * change the status badge to its red offline state.
+         */
         statusElement.textContent = "Offline";
         statusElement.classList.add("error");
       }
     }
 
+    // Load the server metrics immediately when the page opens.
     updateDashboard();
+
+    // Request updated metrics every five seconds.
     setInterval(updateDashboard, 5000);
   </script>
 </body>
