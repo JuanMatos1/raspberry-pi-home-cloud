@@ -1,0 +1,11 @@
+[Unit]
+Description=Send JuanCloud heartbeat every 5 minutes
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=5min
+AccuracySec=30s
+Unit=juancloud-heartbeat.service
+
+[Install]
+WantedBy=timers.target

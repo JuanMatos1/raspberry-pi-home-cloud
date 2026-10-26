@@ -42,3 +42,9 @@ __pycache__/
 *.py[cod]
 *.backup*
 *.before-*
+
+# Private heartbeat config and recovery working data
+curl.conf
+recovery/reports/
+recovery/sessions/
+recovery/restore-*/
