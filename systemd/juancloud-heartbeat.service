@@ -1,0 +1,12 @@
+[Unit]
+Description=JuanCloud External Heartbeat
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/curl --config /etc/juancloud-heartbeat/curl.conf
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true

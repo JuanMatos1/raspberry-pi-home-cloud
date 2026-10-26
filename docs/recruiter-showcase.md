@@ -4,16 +4,15 @@
 
 1. Read [the monitoring architecture](monitoring-and-maintenance.md) and the root README.
 2. Inspect `dashboard/` for the live metrics UI and Express API, and `monitoring/` for Python health rules and tests.
-3. Review the changelog and commit history for the project evolution.
-4. Verify automated update decisions are separated from human-reviewed container upgrades.
+3. Review [isolated recovery results](juancloud-v3-disaster-recovery.md) and the [external heartbeat drill](juancloud-v3-external-monitoring.md).
+4. Review the changelog and commit history for the project evolution.
+5. Verify automated update decisions are separated from human-reviewed container upgrades.
 
 ## Screenshots from the actual deployed server
 
 ![Live JuanCloud dashboard](../images/screenshots/juancloud-v2-dashboard.png)
 
-![Real Gmail update-notification test](../images/screenshots/juancloud-update-email.png)
-
-These are the author's actual uploaded screenshots, not generated examples. The email shows a **test notification**, not a confirmed installation event. Its Gmail account address is visible; redact or approve that disclosure before public release. In the dashboard capture, the AI answer mentions four pending packages while the verified metrics report zero. Trust the deterministic measurement; the discrepancy is an example of why the model is not used to make alert decisions.
+The dashboard is an actual server capture. The original Gmail delivery-test screenshot is omitted because it contains a personal email address. In the dashboard capture, the AI answer mentions four pending packages while the verified metrics report zero. Trust the deterministic measurement; the discrepancy is an example of why the model is not used to make alert decisions.
 
 Additional optional evidence: `unattended-upgrade --dry-run -v` and `apt-daily` timer output, sanitized to avoid private identifiers.
 

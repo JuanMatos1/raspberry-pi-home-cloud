@@ -4,6 +4,19 @@ A secure, self-hosted private cloud and backend development server built with a 
 
 ![Raspberry Pi Home Cloud hardware](images/overview/components.jpeg)
 
+## JuanCloud v3 — Disaster Recovery & External Monitoring
+
+JuanCloud v3 adds **tested, isolated Nextcloud recovery** and **external downtime alerts**:
+
+- Validated a SHA256-protected PostgreSQL and Nextcloud backup; restored **126 PostgreSQL tables** and approximately **1.1 GB** of Nextcloud application/data files into separate temporary resources.
+- Completed two successful isolated CLI recovery runs in **15 seconds each**, then validated an HTTP 200 Nextcloud status response and signed into the recovered website through an SSH tunnel.
+- Preserved production containers and verified automatic cleanup of temporary recovery containers, networks, and Docker volumes.
+- Deployed a five-minute systemd heartbeat to Healthchecks.io and demonstrated an actual **DOWN notification email** by stopping only the heartbeat timer.
+
+**Read the implementation:** [Disaster recovery runbook](docs/juancloud-v3-disaster-recovery.md) · [External heartbeat monitoring](docs/juancloud-v3-external-monitoring.md) · [Recovery scripts](recovery/) · [Public systemd unit templates](systemd/).
+
+**Scope limitation:** These results demonstrate Nextcloud application recovery on an operating Raspberry Pi, **not** bare-metal recovery, an established end-to-end RTO, encrypted off-site backup, or a guaranteed uptime SLA. The recovery scripts are sanitized public adaptations of scripts tested locally; retest any changes before production use.
+
 <!-- juancloud-v2:start -->
 ## New in JuanCloud v2 — Monitoring & Maintenance
 
@@ -19,17 +32,13 @@ JuanCloud has evolved from file hosting into a self-hosted **operations and obse
 
 ### Live JuanCloud screenshots
 
-The following screenshots were captured from the actual Raspberry Pi server and its Gmail update notifier (not generated examples).
+The following dashboard screenshot was captured from the actual Raspberry Pi server.
 
 ![JuanCloud v2 live dashboard showing system metrics, verified checks, and local AI](images/screenshots/juancloud-v2-dashboard.png)
 
 *JuanCloud dashboard — system metrics, health checks, pending APT packages, and local AI interface. The language model output is advisory and may disagree with the verified update count.*
 
-![Actual JuanCloud Ubuntu update notification test received in Gmail](images/screenshots/juancloud-update-email.png)
-
-*JuanCloud update notification — successful delivery test. The screenshot is labeled as a test and shows no package changes, zero pending updates, and no reboot required.*
-
-> **Screenshot privacy review:** The Gmail screenshot contains a personal email address. Review or redact it before publishing the repository publicly.
+The Gmail update notifier passed a delivery test. Its original screenshot is omitted because it contains a personal email address.
 
 **Documentation:** [Monitoring & maintenance](docs/monitoring-and-maintenance.md) · [Changelog](CHANGELOG.md) · [Portfolio evidence](docs/recruiter-showcase.md) · [Monitoring source](monitoring/README.md)
 
@@ -146,6 +155,8 @@ The Raspberry Pi was rebooted to verify automatic recovery. Ubuntu, the external
 - [Hardware assembly](docs/hardware-assembly.md)
 - [Security](docs/security.md)
 - [Backups](docs/backups.md)
+- [JuanCloud v3 disaster recovery](docs/juancloud-v3-disaster-recovery.md)
+- [JuanCloud v3 external monitoring](docs/juancloud-v3-external-monitoring.md)
 - [Troubleshooting](docs/troubleshooting.md)
 
 ## Project Gallery
@@ -202,7 +213,7 @@ Additional build photographs are available in [`images/assembly`](images/assembl
 - [x] Automatic recovery tested
 - [x] Project documentation and build photographs added
 - [x] Automated scheduled backups
-- [ ] Restore procedure testing
+- [x] Isolated Nextcloud application restore tested
 - [ ] Public portfolio deployment
 
 ## Privacy Notice
