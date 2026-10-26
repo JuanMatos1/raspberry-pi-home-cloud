@@ -31,6 +31,7 @@ const PORT = 3000;
  * the files located in this directory.
  */
 app.use(express.static(path.join(__dirname, "public")));
+app.use(express.json({ limit: "4kb" }));
 
 /*
  * Capture the current CPU-time counters for every processor core.
@@ -236,6 +237,36 @@ app.get("/health", (req, res) => {
  * it only through 127.0.0.1:3000 on the Raspberry Pi, as configured
  * in compose.yaml.
  */
+/* BEGIN JUANCLOUD AIOPS ROUTES - local dashboard proxy, no credentials */
+app.get('/api/health-report', async (_req, res) => {
+  try {
+    const contents = await fs.readFile('/metrics/health/status.json', 'utf8');
+    res.set('Cache-Control', 'no-store');
+    res.type('json').send(contents);
+  } catch {
+    res.status(503).json({error:'Monitoring report unavailable. Check systemd timer.'});
+  }
+});
+app.post('/api/ask-ai', async (req, res) => {
+  const question = req.body?.question;
+  if (typeof question !== 'string' || !question.trim() || question.length > 1000) {
+    return res.status(400).json({error:'Question must contain 1–1000 characters.'});
+  }
+  try {
+    const response = await fetch('http://host.docker.internal:3001/ask-ai', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({question}),
+      signal:AbortSignal.timeout(150000)
+    });
+    const result = await response.text();
+    res.status(response.status).type('json').send(result);
+  } catch {
+    res.status(503).json({error:'AI assistant unavailable or timed out.'});
+  }
+});
+/* END JUANCLOUD AIOPS ROUTES */
+
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`JuanCloud Dashboard running on port ${PORT}`);
 });
