@@ -4,6 +4,38 @@ A secure, self-hosted private cloud and backend development server built with a 
 
 ![Raspberry Pi Home Cloud hardware](images/overview/components.jpeg)
 
+<!-- juancloud-v2:start -->
+## New in JuanCloud v2 — Monitoring & Maintenance
+
+JuanCloud has evolved from file hosting into a self-hosted **operations and observability lab**. The updated dashboard pairs measured server health with an on-device Ollama assistant, while Python checks independently determine warnings and critical conditions.
+
+| Capability | Why it matters |
+|---|---|
+| Verified health checks | Monitors temperature, memory, storage, container status, and backup jobs without relying on AI guesses |
+| Local AI explanations | Ollama can explain verified health data without controlling alert decisions |
+| HTML Gmail reporting | Daily health digest and severity-coded notifications, with a text fallback |
+| Automatic Ubuntu updates | `unattended-upgrades` for eligible official updates; automatic reboot disabled |
+| Package-change notifications | Optional APT/dpkg watcher for changed packages, pending counts, and reboot flags; verify live installation separately |
+
+### Live JuanCloud screenshots
+
+The following screenshots were captured from the actual Raspberry Pi server and its Gmail update notifier (not generated examples).
+
+![JuanCloud v2 live dashboard showing system metrics, verified checks, and local AI](images/screenshots/juancloud-v2-dashboard.png)
+
+*JuanCloud dashboard — system metrics, health checks, pending APT packages, and local AI interface. The language model output is advisory and may disagree with the verified update count.*
+
+![Actual JuanCloud Ubuntu update notification test received in Gmail](images/screenshots/juancloud-update-email.png)
+
+*JuanCloud update notification — successful delivery test. The screenshot is labeled as a test and shows no package changes, zero pending updates, and no reboot required.*
+
+> **Screenshot privacy review:** The Gmail screenshot contains a personal email address. Review or redact it before publishing the repository publicly.
+
+**Documentation:** [Monitoring & maintenance](docs/monitoring-and-maintenance.md) · [Changelog](CHANGELOG.md) · [Portfolio evidence](docs/recruiter-showcase.md) · [Monitoring source](monitoring/README.md)
+
+> **Design principle:** deterministic checks determine health. The local language model explains the results but does not decide whether a service is healthy. No secret, private endpoint, or production dataset is included in this repository.
+<!-- juancloud-v2:end -->
+
 ## Project Overview
 
 This project transforms a Raspberry Pi 5 into a home server capable of:
@@ -169,7 +201,7 @@ Additional build photographs are available in [`images/assembly`](images/assembl
 - [x] Monitoring dashboard deployed
 - [x] Automatic recovery tested
 - [x] Project documentation and build photographs added
-- [ ] Automated scheduled backups
+- [x] Automated scheduled backups
 - [ ] Restore procedure testing
 - [ ] Public portfolio deployment
 

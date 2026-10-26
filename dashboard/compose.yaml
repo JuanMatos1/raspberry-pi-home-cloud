@@ -2,6 +2,8 @@ services:
   api:
     build: .
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
     ports:
       - "127.0.0.1:3000:3000"
@@ -12,6 +14,7 @@ services:
     volumes:
       - "/var/lib/juancloud-metrics/nvme:/metrics/nvme:ro"
       - "/srv/backups/.juancloud-metrics:/metrics/backup:ro"
+      - "/var/lib/juancloud-health:/metrics/health:ro"
 
     read_only: true
 

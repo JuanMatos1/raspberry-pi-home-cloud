@@ -269,6 +269,40 @@
     <footer>
       Last updated: <span id="lastUpdated">--</span>
     </footer>
+  <!-- BEGIN JUANCLOUD AIOPS SECTION -->
+<section aria-labelledby="aiops-title" style="margin-top:30px">
+  <h2 id="aiops-title">JuanCloud Health & AI</h2>
+  <div class="grid">
+    <article class="card">
+      <div class="label">Verified server health</div>
+      <div id="jhc-level" class="value">Checking...</div>
+      <div id="jhc-detail" class="detail">Loading health checks</div>
+    </article>
+    <article class="card">
+      <div class="label">Ubuntu updates</div>
+      <div id="jhc-updates" class="value">--</div>
+      <div id="jhc-updates-detail" class="detail">Checking APT package index</div>
+    </article>
+  </div>
+  <article class="card" style="margin-top:18px;min-height:unset">
+    <div class="label">Health findings</div>
+    <ul id="jhc-findings" aria-live="polite"><li>Loading...</li></ul>
+    <div id="jhc-checked" class="detail"></div>
+  </article>
+  <article class="card" style="margin-top:18px;min-height:unset">
+    <div class="label">Ask JuanCloud AI</div>
+    <p class="detail">Local Ollama 1B. AI explanations may be wrong; rely on verified health checks for alerts.</p>
+    <form id="jhc-form" style="display:flex;gap:10px;flex-wrap:wrap">
+      <input id="jhc-question" type="text" maxlength="1000" required
+        placeholder="Are my services and backups healthy?"
+        style="flex:1;min-width:200px;padding:12px;background:#091b2e;border:1px solid #345;color:#fff;border-radius:9px" />
+      <button id="jhc-submit" type="submit" style="padding:12px;background:#2466a5;color:#fff;border:0;border-radius:9px;cursor:pointer">Ask AI</button>
+    </form>
+    <pre id="jhc-answer" aria-live="polite" style="white-space:pre-wrap;overflow-wrap:anywhere;font-family:inherit"></pre>
+  </article>
+</section>
+<!-- END JUANCLOUD AIOPS SECTION -->
+
   </main>
 
   <script>
@@ -403,5 +437,40 @@
     // Request updated metrics every five seconds.
     setInterval(updateDashboard, 5000);
   </script>
+<!-- BEGIN JUANCLOUD AIOPS SCRIPT -->
+<script>
+async function refreshJuanCloudHealth(){
+  const level=document.getElementById('jhc-level');
+  const findings=document.getElementById('jhc-findings');
+  try{
+    const r=await fetch('/api/health-report',{cache:'no-store'});
+    if(!r.ok)throw new Error(`HTTP ${r.status}`);
+    const d=await r.json();
+    level.textContent=d.overall.toUpperCase();
+    level.style.color=d.overall==='critical'?'#ff8a8a':d.overall==='warning'?'#ffd08a':'#72f1a5';
+    document.getElementById('jhc-detail').textContent=d.checks.length+' checks collected';
+    document.getElementById('jhc-updates').textContent=d.updates.count ?? '?';
+    document.getElementById('jhc-updates-detail').textContent='Pending APT packages · cached metadata'+(d.updates.rebootRequired?' · Reboot required':'');
+    document.getElementById('jhc-checked').textContent='Last verified: '+new Date(d.timestamp).toLocaleString();
+    const issues=d.checks.filter(x=>x.severity!=='ok');
+    findings.replaceChildren();
+    if(!issues.length){const li=document.createElement('li');li.textContent='No confirmed problems in the checks performed.';findings.append(li);}
+    for(const item of issues){const li=document.createElement('li');li.textContent=`${item.severity.toUpperCase()}: ${item.summary} — ${item.evidence}`;findings.append(li);}
+  }catch(e){level.textContent='Unavailable';findings.textContent='Health report unavailable: '+e.message;}
+}
+document.getElementById('jhc-form').addEventListener('submit',async function(e){
+  e.preventDefault();const button=document.getElementById('jhc-submit');
+  const answer=document.getElementById('jhc-answer');const question=document.getElementById('jhc-question').value;
+  button.disabled=true;answer.textContent='Asking local Ollama (may take a minute)...';
+  try{
+    const r=await fetch('/api/ask-ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question})});
+    const d=await r.json();answer.textContent=r.ok?d.answer:(d.error||'AI unavailable');
+  }catch(e){answer.textContent='Request failed: '+e.message;}
+  finally{button.disabled=false;}
+});
+refreshJuanCloudHealth();setInterval(refreshJuanCloudHealth,60000);
+</script>
+<!-- END JUANCLOUD AIOPS SCRIPT -->
+
 </body>
 </html>

@@ -36,3 +36,9 @@ tmp/
 Thumbs.db
 .vscode/
 .idea/
+
+# Python build artifacts and local snapshots
+__pycache__/
+*.py[cod]
+*.backup*
+*.before-*
